@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Product
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+
 
 def home(request):
     products = Product.objects.all()
@@ -13,9 +14,22 @@ def about(request):
 
 
 def login_user(request):
-    return render(request, 'login.html', {})
+    if request.method == 'POST':
+        username = request.Post['Username']
+        password = request.Post['Password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None :
+            login(request,user)
+            messages.success(request, ("Logged in successfully"))
+            return redirect('home')
+        else:
+        messages.success(request, ("Error! Try Again"))
+        return redirect('login')
+    else:
+      return render(request, 'login.html', {})
 
 
 def logout_user(request):
-    pass
-
+    logout(request)
+    messages.success(request, ("Logged out successfully"))
+    return redirect('home')
